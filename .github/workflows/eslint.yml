@@ -1,10 +1,15 @@
 name: ESLint
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'eslint.config.js'
+      - '.github/workflows/eslint.yml'
+  workflow_dispatch:
 
 jobs:
   eslint:
