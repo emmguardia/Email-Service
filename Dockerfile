@@ -1,36 +1,43 @@
-FROM node:20-slim
+# Multi-stage build:
+#   - builder: full Debian + npm to install prod deps
+#   - runtime: distroless (no npm, no apt, no shell) → 0 npm-related CVE
+# Net result: scan Trivy clean by construction, smaller image, fewer attack surfaces.
 
-ENV NODE_ENV=production \
-    NPM_CONFIG_LOGLEVEL=error \
-    NPM_CONFIG_UPDATE_NOTIFIER=false \
-    DEBIAN_FRONTEND=noninteractive
+# ---- Builder ----
+FROM node:20-slim AS builder
 
-RUN groupadd -r appuser 2>/dev/null || true && \
-    useradd -r -g appuser -u 1000 appuser 2>/dev/null || true
+ENV NPM_CONFIG_LOGLEVEL=error \
+    NPM_CONFIG_UPDATE_NOTIFIER=false
 
 WORKDIR /app
 
-RUN apt-get update -qq && \
-    apt-get install -y -qq --no-install-recommends openssl && \
-    rm -rf /var/lib/apt/lists/* && \
-    apt-get clean
-
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json ./
 
 RUN npm ci --omit=dev --no-audit --no-fund && \
     npm cache clean --force
 
-COPY src/ ./src/
-COPY templates/ ./templates/
+# ---- Runtime ----
+# distroless/nodejs20: contient uniquement Node.js + ca-certs + tzdata.
+# Pas de npm, pas de bash, pas d'apt → aucune CVE de tooling.
+FROM gcr.io/distroless/nodejs20-debian12:nonroot
 
-RUN mkdir -p /app/secrets && \
-    chown -R 1000:1000 /app
+ENV NODE_ENV=production \
+    TZ=Europe/Paris
 
+WORKDIR /app
+
+# chown 1000:1000 pour matcher securityContext.runAsUser de la chart Helm.
+COPY --from=builder --chown=1000:1000 /app/node_modules ./node_modules
+COPY --chown=1000:1000 package.json ./
+COPY --chown=1000:1000 src/ ./src/
+COPY --chown=1000:1000 templates/ ./templates/
+
+# distroless `nonroot` est uid 65532. La chart override avec runAsUser: 1000.
+# Les fichiers étant chownés 1000:1000 ET en mode 644 par défaut, les deux fonctionnent.
 USER 1000
 
 EXPOSE 8080
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-    CMD node -e "const http=require('http');http.get('http://localhost:8080/health/live',(r)=>{process.exit(r.statusCode===200?0:1)}).on('error',()=>process.exit(1))"
-
-CMD ["node", "src/server.js"]
+# ENTRYPOINT distroless = ["/usr/bin/node"], donc CMD = arg du script.
+# Pas de HEALTHCHECK Docker : kubelet pilote livenessProbe/readinessProbe (chart).
+CMD ["src/server.js"]
