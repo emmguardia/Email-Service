@@ -1,0 +1,22 @@
+<!-- EMAIL_SUBJECT: Facture n°{{ order_number }} - Le Clos de la Reine -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Votre facture</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; line-height: 1.6; color: #1f1f1f; padding: 20px; }
+    .message { margin: 20px 0; }
+    .footer { margin-top: 30px; font-size: 12px; color: #6b7280; }
+  </style>
+</head>
+<body>
+  <p>Bonjour {{ to_name }},</p>
+  <p class="message">
+    Merci pour votre achat ! Veuillez trouver votre facture n°{{ order_number }} en pièce jointe.
+  </p>
+  <p>Pour toute question, contactez-nous à contact@closdelareine.fr</p>
+  <p class="footer">Le Clos de la Reine</p>
+</body>
+</html>

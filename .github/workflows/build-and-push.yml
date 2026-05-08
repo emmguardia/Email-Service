@@ -1,0 +1,184 @@
+# Build and push Email-Service: main → version + digest (prod)
+# ArgoCD: App Prod = branche main + namespace email-service
+
+name: Build and push to GHCR
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build'
+        required: true
+        default: 'main'
+        type: choice
+        options:
+          - main
+
+env:
+  REGISTRY: ghcr.io
+  TRIVY_IMAGE: aquasec/trivy:0.69.3
+
+permissions:
+  contents: read
+  packages: write
+  attestations: write
+  id-token: write
+
+concurrency:
+  group: build-and-push-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test & security
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install
+        run: npm ci
+
+      - name: Audit (high+)
+        run: npm audit --audit-level=high
+
+      - name: Test (if present)
+        run: npm test --if-present
+
+  build-and-push:
+    name: Build and push
+    needs: test
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bump version (prod)
+        id: tag
+        run: |
+          CONTENT=$(cat version.txt | tr -d '\r\n ')
+          MAJOR=$(echo "$CONTENT" | cut -d. -f1)
+          MINOR=$(echo "$CONTENT" | cut -d. -f2)
+          PATCH=$(echo "$CONTENT" | cut -d. -f3)
+          if ! [[ "$MAJOR" =~ ^[0-9]+$ ]] || ! [[ "$MINOR" =~ ^[0-9]+$ ]] || ! [[ "$PATCH" =~ ^[0-9]+$ ]]; then
+            echo "version.txt invalide: $CONTENT (attendu X.Y.Z)"
+            exit 1
+          fi
+          if [ "$PATCH" -lt 99 ]; then
+            PATCH=$((PATCH + 1))
+          else
+            PATCH=0
+            MINOR=$((MINOR + 1))
+          fi
+          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          echo "$NEW_VERSION" > version.txt
+          TAG="v${NEW_VERSION}"
+          echo "IMAGE_TAG=$TAG" >> $GITHUB_ENV
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Version: $CONTENT → $NEW_VERSION (tag: $TAG)"
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/email-service
+          tags: |
+            type=raw,value=${{ steps.tag.outputs.tag }}
+
+      # Étape 1 : build local pour le scan Trivy (pas de push)
+      - name: Build (local — pour scan Trivy)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          push: false
+          tags: scan-email:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          pull: true
+
+      # Étape 2 : scan AVANT push — image vulnérable ne part jamais dans GHCR
+      - name: Trivy scan (avant push)
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+            ${{ env.TRIVY_IMAGE }} image --exit-code 1 --severity CRITICAL,HIGH --ignore-unfixed --format table --timeout 15m \
+            scan-email:latest
+
+      # Étape 3 : push uniquement si scan clean
+      - name: Push
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          pull: true
+
+      # Pin digest dans values.yaml → ArgoCD sync automatique
+      - name: Pin Helm values to image digest
+        run: |
+          TAG="${{ steps.tag.outputs.tag }}"
+          DIGEST="${{ steps.build.outputs.digest }}"
+          OWNER="${{ github.repository_owner }}"
+          REG="${{ env.REGISTRY }}"
+
+          if [ -n "$DIGEST" ]; then
+            IMAGE="${REG}/${OWNER}/email-service@${DIGEST}"
+          else
+            IMAGE="${REG}/${OWNER}/email-service:${TAG}"
+          fi
+
+          VALUES_PATH="charts/email-service/values.yaml"
+
+          sed -i "s|  image: ghcr.io/.*email-service.*|  image: ${IMAGE}|" "$VALUES_PATH"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add version.txt "$VALUES_PATH"
+
+          if git diff --staged --quiet; then
+            echo "Helm values already up to date, skip commit"
+          else
+            git commit -m "chore(helm): pin image to digest $TAG [skip ci]"
+            git pull --rebase origin ${{ github.ref_name }}
+            git push origin ${{ github.ref_name }}
+          fi

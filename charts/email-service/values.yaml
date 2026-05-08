@@ -1,0 +1,74 @@
+# Email-Service (prod)
+namespace: email-service
+
+imagePullSecrets:
+  - name: ghcr-secret
+
+service:
+  image: ghcr.io/emmguardia/email-service:v1.0.0
+  imagePullPolicy: IfNotPresent
+  replicas: 2
+  port: 8080
+  env:
+    PORT: "8080"
+    NODE_ENV: production
+    ENVIRONMENT: production
+    LOG_LEVEL: info
+    LOG_FORMAT: json
+    TEMPLATES_DIR: /app/templates
+    JWT_PRIVATE_KEY_PATH: /app/secrets/jwt_private_key.pem
+    JWT_PUBLIC_KEY_PATH: /app/secrets/jwt_public_key.pem
+    JWT_ALGORITHM: RS256
+    JWT_EXPIRATION_HOURS: "24"
+    JWT_ISSUER: email-service
+    # JWT_AUDIENCE: laisser vide tant que les clients (Invoice-Service, frontends)
+    # n'incluent pas la claim `aud` dans les tokens — sinon tous les tokens existants
+    # seront rejetés. Activer plus tard quand les émetteurs auront été mis à jour.
+    GMAIL_SMTP_HOST: smtp.gmail.com
+    GMAIL_SMTP_PORT: "587"
+    SMTP_POOL_MAX_CONNECTIONS: "3"
+    SMTP_POOL_MAX_MESSAGES: "100"
+    SMTP_RATE_LIMIT: "5"
+    RATE_LIMIT_PER_IP: "100"
+    RATE_LIMIT_PER_PROJECT: "500"
+    RATE_LIMIT_PER_PROJECT_DAILY: "450"
+    RATE_LIMIT_WINDOW_HOURS: "1"
+    ATTACHMENTS_MAX_COUNT: "5"
+    ATTACHMENTS_MAX_BYTES_PER_FILE: "2097152"
+    ATTACHMENTS_MAX_BYTES_TOTAL: "5242880"
+    ATTACHMENTS_ALLOWED_MIME: "application/pdf,image/png,image/jpeg"
+    ALLOWED_ORIGINS: "https://closdelareine.fr,https://domainedesrevesbleus.eu,https://zenixweb.fr"
+  secretName: email-service-secrets
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+  hpa:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    cpuTarget: 70
+    memoryTarget: 80
+  networkPolicy:
+    enabled: true
+    callerNamespaces:
+      - clos-de-la-reine
+      - clos-de-la-reine-dev
+      - invoice-service
+    allowSmtpEgress: true
+
+redis:
+  image: redis:7.4-alpine
+  port: 6379
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
+    limits:
+      cpu: "200m"
+      memory: "128Mi"
+  # Redis tient les compteurs de rate-limit. Aucune persistance (compteurs éphémères).
+  # Mot de passe lu depuis le sealed-secret (clé `redis-password`).

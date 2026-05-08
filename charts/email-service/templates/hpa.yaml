@@ -1,0 +1,31 @@
+{{- if .Values.service.hpa.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: email-service
+  namespace: {{ include "email.namespace" . }}
+  labels:
+    {{- include "email.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: email-service
+  minReplicas: {{ .Values.service.hpa.minReplicas }}
+  maxReplicas: {{ .Values.service.hpa.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.service.hpa.cpuTarget }}
+    {{- if .Values.service.hpa.memoryTarget }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.service.hpa.memoryTarget }}
+    {{- end }}
+{{- end }}

@@ -1,0 +1,106 @@
+{{- if .Values.service.networkPolicy.enabled }}
+---
+# Email-service app : ingress depuis backends autorisés, egress DNS + SMTP + Redis local.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: email-service
+  namespace: {{ include "email.namespace" . }}
+  labels:
+    {{- include "email.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app: email-service
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        {{- range .Values.service.networkPolicy.callerNamespaces }}
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ . | quote }}
+        {{- end }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.service.port }}
+  egress:
+    # DNS (kube-dns)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Redis (in-cluster)
+    - to:
+        - podSelector:
+            matchLabels:
+              app: email-service-redis
+      ports:
+        - protocol: TCP
+          port: {{ .Values.redis.port }}
+    {{- if .Values.service.networkPolicy.allowSmtpEgress }}
+    # Gmail SMTP (Internet, hors ranges privés)
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+              - 169.254.0.0/16
+              - 127.0.0.0/8
+      ports:
+        - protocol: TCP
+          port: 587
+        - protocol: TCP
+          port: 465
+        - protocol: TCP
+          port: 25
+    {{- end }}
+---
+# Redis : accessible uniquement depuis l'app email-service.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: email-service-redis
+  namespace: {{ include "email.namespace" . }}
+  labels:
+    {{- include "email.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app: email-service-redis
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: email-service
+      ports:
+        - protocol: TCP
+          port: {{ .Values.redis.port }}
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+{{- end }}

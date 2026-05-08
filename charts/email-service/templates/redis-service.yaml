@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: email-service-redis
+  namespace: {{ include "email.namespace" . }}
+  labels:
+    {{- include "email.labels" . | nindent 4 }}
+    app: email-service-redis
+spec:
+  type: ClusterIP
+  selector:
+    app: email-service-redis
+  ports:
+  - port: {{ .Values.redis.port }}
+    targetPort: {{ .Values.redis.port }}
+    protocol: TCP
+    name: redis

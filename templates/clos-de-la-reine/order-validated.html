@@ -1,0 +1,231 @@
+<!-- EMAIL_SUBJECT: Votre commande a été validée - Clos de la Reine -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commande validée - Clos de la Reine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #1f1f1f;
+            background: #f8f4ef;
+            padding: 20px 0;
+        }
+        .email-wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 25px 60px -25px rgba(31, 31, 31, 0.18);
+        }
+        .header {
+            background: linear-gradient(135deg, #e5f2eb 0%, #f2dedd 50%, #f8f4ef 100%);
+            padding: 50px 40px;
+            text-align: center;
+            border-bottom: 1px solid rgba(31, 31, 31, 0.05);
+        }
+        .logo-container {
+            margin-bottom: 25px;
+        }
+        .logo {
+            height: 70px;
+            width: auto;
+        }
+        .header-title {
+            font-family: 'Playfair Display', serif;
+            color: #1f1f1f;
+            font-size: 32px;
+            font-weight: 400;
+            margin: 0;
+            letter-spacing: -0.02em;
+        }
+        .content {
+            padding: 50px 40px;
+        }
+        .greeting {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            color: #1f1f1f;
+            margin-bottom: 25px;
+            font-weight: 400;
+            letter-spacing: -0.02em;
+        }
+        .message {
+            font-size: 16px;
+            color: #4a4a4a;
+            margin-bottom: 35px;
+            line-height: 1.8;
+            font-weight: 300;
+        }
+        .cta-button {
+            display: inline-block;
+            background: #1f1f1f;
+            color: #ffffff !important;
+            padding: 18px 40px;
+            border-radius: 28px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            margin: 25px 0;
+            transition: background 0.2s;
+        }
+        .cta-button:hover {
+            background: #333333;
+        }
+        .order-box {
+            background: #f8f4ef;
+            border: 1px solid rgba(31, 31, 31, 0.1);
+            border-radius: 28px;
+            padding: 35px;
+            margin: 35px 0;
+        }
+        .order-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 400;
+            color: #1f1f1f;
+            margin-bottom: 30px;
+            text-align: center;
+            letter-spacing: -0.02em;
+        }
+        .order-section {
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid rgba(31, 31, 31, 0.1);
+        }
+        .order-section:last-child {
+            border-bottom: none;
+        }
+        .section-title {
+            font-size: 11px;
+            font-weight: 500;
+            color: #1f1f1f;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            margin-bottom: 15px;
+        }
+        .order-items {
+            font-size: 15px;
+            color: #4a4a4a;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            font-weight: 300;
+        }
+        .order-total {
+            background: #1f1f1f;
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 400;
+            margin-top: 25px;
+            letter-spacing: -0.02em;
+        }
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(31, 31, 31, 0.1), transparent);
+            margin: 40px 0;
+        }
+        .footer {
+            background: #f8f4ef;
+            padding: 40px;
+            text-align: center;
+            border-top: 1px solid rgba(31, 31, 31, 0.05);
+        }
+        .footer-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: 400;
+            color: #1f1f1f;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+        .footer-text {
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+        @media only screen and (max-width: 600px) {
+            .email-wrapper {
+                margin: 0 10px;
+                border-radius: 24px;
+            }
+            .header, .content, .footer {
+                padding: 30px 25px;
+            }
+            .header-title {
+                font-size: 26px;
+            }
+            .logo {
+                height: 60px;
+            }
+            .greeting {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="header">
+            <div class="logo-container">
+                <img src="https://closdelareine.fr/Images/Logo.png" alt="Clos de la Reine" class="logo" />
+            </div>
+            <h1 class="header-title">Commande validée ✓</h1>
+        </div>
+        
+        <div class="content">
+            <p class="greeting">Bonjour {{ to_name }},</p>
+            
+            <p class="message">
+                Excellente nouvelle ! Votre commande a été validée par Le Clos de la Reine. Vous pouvez maintenant procéder au paiement pour finaliser votre achat.
+            </p>
+            
+            <div class="order-box">
+                <div class="order-number">Commande #{{ order_number }}</div>
+                
+                <div class="order-section">
+                    <div class="section-title">Articles commandés</div>
+                    <div class="order-items">{{ order_items }}</div>
+                </div>
+                
+                <div class="order-section">
+                    <div class="section-title">Total</div>
+                    <div class="order-items">{{ order_total }}</div>
+                </div>
+            </div>
+            
+            <p class="message" style="text-align: center;">
+                Cliquez sur le bouton ci-dessous pour accéder à votre espace et procéder au paiement :
+            </p>
+            
+            <p style="text-align: center;">
+                <a href="{{ site_link }}" class="cta-button">Accéder à mes commandes</a>
+            </p>
+            
+            <div class="divider"></div>
+            
+            <p class="message">
+                Vous serez redirigé vers la page de paiement sécurisé. N'hésitez pas à nous contacter si vous avez des questions.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <div class="footer-brand">Clos de la Reine</div>
+            <div class="footer-text">Cet email a été envoyé automatiquement, merci de ne pas y répondre.<br>Pour toute question, contactez-nous à closdelareine@gmail.com</div>
+        </div>
+    </div>
+</body>
+</html>

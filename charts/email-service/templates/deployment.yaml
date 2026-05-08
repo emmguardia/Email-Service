@@ -1,0 +1,162 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: email-service
+  namespace: {{ include "email.namespace" . }}
+  labels:
+    {{- include "email.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.service.replicas }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: email-service
+  template:
+    metadata:
+      labels:
+        app: email-service
+    spec:
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: email-service
+        image: {{ .Values.service.image }}
+        imagePullPolicy: {{ .Values.service.imagePullPolicy }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
+        ports:
+        - containerPort: {{ .Values.service.port }}
+        env:
+        - name: TZ
+          value: Europe/Paris
+        {{- range $k, $v := .Values.service.env }}
+        - name: {{ $k }}
+          value: {{ $v | quote }}
+        {{- end }}
+        # Redis : args séparés (sûr quels que soient les caractères du mot de passe).
+        - name: REDIS_HOST
+          value: {{ include "email.redisHost" . | quote }}
+        - name: REDIS_PORT
+          value: {{ .Values.redis.port | quote }}
+        - name: REDIS_DB
+          value: "0"
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: redis-password
+        # Gmail credentials per project
+        - name: PROJECT_LAURENCE_GMAIL_APP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-laurence-gmail-app-password
+        - name: PROJECT_LAURENCE_GMAIL_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-laurence-gmail-user
+        - name: PROJECT_LAURENCE_FROM_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-laurence-from-email
+        - name: PROJECT_LAURENCE_DISPLAY_NAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-laurence-display-name
+              optional: true
+        - name: PROJECT_ENZO_GMAIL_APP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-enzo-gmail-app-password
+        - name: PROJECT_ENZO_GMAIL_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-enzo-gmail-user
+        - name: PROJECT_ENZO_FROM_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-enzo-from-email
+        - name: PROJECT_ENZO_DISPLAY_NAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-enzo-display-name
+              optional: true
+        - name: PROJECT_CLOS_DE_LA_REINE_GMAIL_APP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-clos-de-la-reine-gmail-app-password
+        - name: PROJECT_CLOS_DE_LA_REINE_GMAIL_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-clos-de-la-reine-gmail-user
+        - name: PROJECT_CLOS_DE_LA_REINE_FROM_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-clos-de-la-reine-from-email
+        - name: PROJECT_CLOS_DE_LA_REINE_DISPLAY_NAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-clos-de-la-reine-display-name
+              optional: true
+        resources:
+          {{- toYaml .Values.service.resources | nindent 10 }}
+        volumeMounts:
+        - name: secrets
+          mountPath: /app/secrets
+          readOnly: true
+        - name: tmp
+          mountPath: /tmp
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: {{ .Values.service.port }}
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: {{ .Values.service.port }}
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+      volumes:
+      - name: secrets
+        secret:
+          secretName: {{ .Values.service.secretName }}
+          items:
+          - key: jwt-private-key
+            path: jwt_private_key.pem
+          - key: jwt-public-key
+            path: jwt_public_key.pem
+      - name: tmp
+        emptyDir:
+          medium: Memory
+          sizeLimit: 64Mi

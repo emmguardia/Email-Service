@@ -1,0 +1,185 @@
+<!-- EMAIL_SUBJECT: Confirmation de réception - Zenix Web -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - Zenix Web</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #1e293b;
+            background-color: #f1f5f9;
+            padding: 20px 0;
+        }
+        .email-wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .logo-container {
+            margin-bottom: 20px;
+        }
+        .logo {
+            max-width: 180px;
+            height: auto;
+            display: inline-block;
+        }
+        .header-title {
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .greeting {
+            font-size: 18px;
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .message {
+            font-size: 16px;
+            color: #475569;
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+        .highlight-box {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-left: 4px solid #0f172a;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+        .highlight-box p {
+            margin: 0;
+            color: #334155;
+            font-size: 15px;
+        }
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #e2e8f0, transparent);
+            margin: 30px 0;
+        }
+        .footer {
+            background-color: #f8fafc;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+        .footer-brand {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+        .footer-tagline {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 20px;
+        }
+        .footer-links {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .footer-link {
+            color: #0f172a;
+            text-decoration: none;
+            font-size: 14px;
+            margin: 0 10px;
+            transition: color 0.3s ease;
+        }
+        .footer-link:hover {
+            color: #475569;
+        }
+        .footer-copyright {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        @media only screen and (max-width: 600px) {
+            .email-wrapper {
+                margin: 0 10px;
+                border-radius: 8px;
+            }
+            .header {
+                padding: 30px 20px;
+            }
+            .content {
+                padding: 30px 20px;
+            }
+            .logo {
+                max-width: 150px;
+            }
+            .header-title {
+                font-size: 24px;
+            }
+            .footer {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="header">
+            <div class="logo-container">
+                <img src="https://www.zenixweb.fr/images/Logo.png" alt="Zenix Web Logo" class="logo">
+            </div>
+        </div>
+        
+        <div class="content">
+            <p class="greeting">Bonjour {{ to_name }},</p>
+            
+            <p class="message">
+                Merci de nous avoir contactés ! Nous avons bien reçu votre message et nous vous répondrons dans les plus brefs délais.
+            </p>
+            
+            <div class="highlight-box">
+                <p>
+                    <strong>Notre engagement :</strong> Nous nous efforçons de répondre à toutes les demandes dans un délai de 24 heures. Votre projet est important pour nous.
+                </p>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <p class="message">
+                En attendant, n'hésitez pas à consulter nos services sur <a href="https://www.zenixweb.fr" style="color: #0f172a; text-decoration: none; font-weight: 600;">zenixweb.fr</a> pour découvrir comment nous pouvons vous accompagner dans votre projet web.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <div class="footer-brand">Zenix Web</div>
+            <div class="footer-tagline">Développeur web freelance • Lyon, France</div>
+            
+            <div class="footer-links">
+                <a href="https://www.zenixweb.fr" class="footer-link">Site Web</a>
+                <a href="https://www.zenixweb.fr/services" class="footer-link">Services</a>
+                <a href="https://www.zenixweb.fr/hebergement" class="footer-link">Hébergement</a>
+            </div>
+            
+            <div class="footer-copyright">
+                © 2026 Zenix Web. Tous droits réservés.
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!-- EMAIL_SUBJECT: Nouvelle commande reçue - Domaine des Rêves Bleus -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nouvelle commande reçue - Domaine des Rêves Bleus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #1e293b;
+            background: linear-gradient(135deg, #eef2ff 0%, #fce7f3 100%);
+            padding: 20px 0;
+        }
+        .email-wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.15);
+        }
+        .header {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f472b6 100%);
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .logo-container {
+            margin-bottom: 20px;
+        }
+        .logo {
+            height: 60px;
+            width: auto;
+            filter: brightness(0) invert(1);
+        }
+        .header-title {
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .message {
+            font-size: 16px;
+            color: #475569;
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+        .order-box {
+            background: linear-gradient(135deg, #fef2f2 0%, #fce7f3 100%);
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        .order-number {
+            font-size: 22px;
+            font-weight: 700;
+            color: #dc2626;
+            margin-bottom: 20px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .order-section {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+        }
+        .order-section:last-child {
+            border-bottom: none;
+        }
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #dc2626;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+        .order-info {
+            font-size: 15px;
+            color: #374151;
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+        .order-items {
+            font-size: 15px;
+            color: #374151;
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+        .order-total {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+            color: #ffffff;
+            padding: 18px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 700;
+            margin-top: 20px;
+        }
+        .shipping-address {
+            font-size: 15px;
+            color: #374151;
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ef4444, transparent);
+            margin: 30px 0;
+        }
+        .footer {
+            background: linear-gradient(135deg, #f9fafb 0%, #f5f3ff 100%);
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+        }
+        .footer-brand {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        .footer-text {
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+        @media only screen and (max-width: 600px) {
+            .email-wrapper {
+                margin: 0 10px;
+                border-radius: 12px;
+            }
+            .header, .content, .footer {
+                padding: 25px 20px;
+            }
+            .header-title {
+                font-size: 24px;
+            }
+            .logo {
+                height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="header">
+            <div class="logo-container">
+                <img src="https://domainedesrevesbleus.eu/images/logo.png" alt="Domaine des Rêves Bleus" class="logo" />
+            </div>
+            <h1 class="header-title">Nouvelle commande reçue</h1>
+        </div>
+        
+        <div class="content">
+            <p class="message">
+                Une nouvelle commande a été passée sur votre site.
+            </p>
+            
+            <div class="order-box">
+                <div class="order-number">Commande #{{ order_number }}</div>
+                
+                <div class="order-section">
+                    <div class="section-title">Informations client</div>
+                    <div class="order-info">Nom : {{ customer_name }}<br>Email : {{ customer_email }}<br>Téléphone : {{ customer_phone }}</div>
+                </div>
+                
+                <div class="order-section">
+                    <div class="section-title">Articles commandés</div>
+                    <div class="order-items">{{ order_items }}</div>
+                </div>
+                
+                <div class="order-section">
+                    <div class="section-title">Récapitulatif</div>
+                    <div class="order-items">{{ order_total }}</div>
+                </div>
+                
+                <div class="order-section">
+                    <div class="section-title">Méthode de paiement</div>
+                    <div class="order-info">{{ payment_method }}</div>
+                </div>
+                
+                <div class="order-section">
+                    <div class="section-title">Adresse de livraison</div>
+                    <div class="shipping-address">{{ shipping_address }}</div>
+                </div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <p class="message">
+                Veuillez traiter cette commande dans les plus brefs délais.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <div class="footer-brand">Domaine des Rêves Bleus</div>
+            <div class="footer-text">Notification automatique - Système de gestion des commandes</div>
+        </div>
+    </div>
+</body>
+</html>

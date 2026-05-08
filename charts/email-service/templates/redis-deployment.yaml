@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: email-service-redis
+  namespace: {{ include "email.namespace" . }}
+  labels:
+    {{- include "email.labels" . | nindent 4 }}
+    app: email-service-redis
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: email-service-redis
+  template:
+    metadata:
+      labels:
+        app: email-service-redis
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: redis
+        image: {{ .Values.redis.image }}
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
+        args:
+          - "--requirepass"
+          - "$(REDIS_PASSWORD)"
+          - "--save"
+          - ""
+          - "--appendonly"
+          - "no"
+          - "--maxmemory"
+          - "64mb"
+          - "--maxmemory-policy"
+          - "allkeys-lru"
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: redis-password
+        ports:
+        - containerPort: {{ .Values.redis.port }}
+          name: redis
+        resources:
+          {{- toYaml .Values.redis.resources | nindent 10 }}
+        livenessProbe:
+          tcpSocket:
+            port: redis
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - "redis-cli -a $REDIS_PASSWORD --no-auth-warning ping | grep -q PONG"
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: data
+        emptyDir:
+          medium: Memory
+          sizeLimit: 96Mi
+      - name: tmp
+        emptyDir:
+          medium: Memory
+          sizeLimit: 16Mi

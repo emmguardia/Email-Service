@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: email-service
+  namespace: {{ include "email.namespace" . }}
+  labels:
+    {{- include "email.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    app: email-service
+  ports:
+  - port: {{ .Values.service.port }}
+    targetPort: {{ .Values.service.port }}
+    protocol: TCP
+    name: http

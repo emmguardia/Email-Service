@@ -1,0 +1,12 @@
+apiVersion: v2
+name: email-service
+description: Microservice d'envoi d'emails (Gmail SMTP, Handlebars, Redis-backed rate-limit)
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - email
+  - smtp
+  - clos-de-la-reine
+  - laurence
+  - enzo
