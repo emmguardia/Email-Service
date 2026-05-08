@@ -4,7 +4,7 @@
 # Net result: scan Trivy clean, minimal attack surface, no npm/apt/shell.
 
 # ---- Builder ----
-FROM node:20-bookworm-slim AS builder
+FROM node:26-bookworm-slim AS builder
 
 ENV NPM_CONFIG_LOGLEVEL=error \
     NPM_CONFIG_UPDATE_NOTIFIER=false

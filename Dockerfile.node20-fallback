@@ -3,7 +3,7 @@
 # Trade-off : image plus grosse (~180 MB), garde un shell bash, mais Node 20 garanti
 # et CVE OS patchées via apt upgrade au build (patron Invoice-Service).
 
-FROM node:20-bookworm-slim AS builder
+FROM node:26-bookworm-slim AS builder
 
 ENV NPM_CONFIG_LOGLEVEL=error \
     NPM_CONFIG_UPDATE_NOTIFIER=false
@@ -16,7 +16,7 @@ RUN npm ci --omit=dev --no-audit --no-fund && \
     npm cache clean --force
 
 # ---- Runtime ----
-FROM node:20-bookworm-slim AS runtime
+FROM node:26-bookworm-slim AS runtime
 
 # Patch OS CVE (libssl, openssl, etc.) — équivalent du `apt upgrade` Invoice-Service
 RUN apt-get update && \
