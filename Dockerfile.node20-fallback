@@ -1,0 +1,47 @@
+# Plan B (alternatif) — si tu veux absolument rester sur Node 20 LTS sans dépendre de Chainguard.
+# Renomme ce fichier en Dockerfile pour l'utiliser à la place du Chainguard.
+# Trade-off : image plus grosse (~180 MB), garde un shell bash, mais Node 20 garanti
+# et CVE OS patchées via apt upgrade au build (patron Invoice-Service).
+
+FROM node:20-bookworm-slim AS builder
+
+ENV NPM_CONFIG_LOGLEVEL=error \
+    NPM_CONFIG_UPDATE_NOTIFIER=false
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+
+RUN npm ci --omit=dev --no-audit --no-fund && \
+    npm cache clean --force
+
+# ---- Runtime ----
+FROM node:20-bookworm-slim AS runtime
+
+# Patch OS CVE (libssl, openssl, etc.) — équivalent du `apt upgrade` Invoice-Service
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends upgrade && \
+    apt-get autoremove -y --purge && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt /usr/share/doc /usr/share/man
+
+# Retire npm + npx (inutiles au runtime) → élimine 11 CVE de tooling
+RUN rm -rf \
+    /usr/local/lib/node_modules/npm \
+    /usr/local/bin/npm \
+    /usr/local/bin/npx
+
+ENV NODE_ENV=production \
+    TZ=Europe/Paris
+
+WORKDIR /app
+
+COPY --from=builder --chown=1000:1000 /app/node_modules ./node_modules
+COPY --chown=1000:1000 package.json ./
+COPY --chown=1000:1000 src/ ./src/
+COPY --chown=1000:1000 templates/ ./templates/
+
+USER 1000
+
+EXPOSE 8080
+
+CMD ["node", "src/server.js"]

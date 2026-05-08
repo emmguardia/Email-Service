@@ -20,7 +20,7 @@ RUN npm ci --omit=dev --no-audit --no-fund && \
 # cgr.dev/chainguard/node:latest = distroless + rebuilds quotidiens.
 # Pas de npm, pas d'apt, pas de shell. CVE OS patchées sous 24h.
 # Public, pull anonyme (pas de signup Chainguard requis pour l'image free tier).
-FROM cgr.dev/chainguard/node:latest-20
+FROM cgr.dev/chainguard/node:latest
 
 ENV NODE_ENV=production \
     TZ=Europe/Paris
