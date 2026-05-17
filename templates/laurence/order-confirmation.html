@@ -169,7 +169,13 @@
         
         <div class="content">
             <p class="greeting">Bonjour {{ to_name }},</p>
-            
+
+            {{#if custom_message}}
+            <p class="message" style="background:#fef3c7;border-left:4px solid #f59e0b;padding:15px 20px;border-radius:8px;color:#92400e;">
+                {{{ custom_message }}}
+            </p>
+            {{/if}}
+
             <p class="message">
                 Merci pour votre commande ! Nous avons bien reçu votre paiement et votre commande est en cours de traitement.
             </p>
