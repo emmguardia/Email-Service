@@ -138,8 +138,11 @@ class EmailService {
     const displayName = config.fromDisplayNames[project] || project;
     const safeSubject = this._safeSubject(subject, tpl.defaultSubject || `Message from ${displayName}`);
 
+    // Format objet { name, address } : nodemailer applique l'encodage RFC 2047
+    // (UTF-8 base64) sur le nom si nécessaire, évitant les caractères transformés
+    // en `?` par les clients mail qui lisent la ligne From en ASCII/Latin-1.
     const mailOptions = {
-      from: `"${displayName}" <${fromEmail}>`,
+      from: { name: displayName, address: fromEmail },
       to: toEmail,
       subject: safeSubject,
       html,
