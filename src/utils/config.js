@@ -8,14 +8,29 @@ if (ENVIRONMENT === 'production' && !process.env.ALLOWED_ORIGINS) {
   throw new Error('ALLOWED_ORIGINS must be set in production (comma-separated list of allowed CORS origins)');
 }
 
+// Fallbacks « propres » par projet — utilisés si l'env var est absente OU si elle
+// contient `??` (signe d'une corruption d'encodage UTF-8 dans le secret K8s).
+const PROJECT_DEFAULT_DISPLAY_NAMES = {
+  laurence: 'Domaine des Rêves Bleus',
+  enzo: 'Enzo',
+  'clos-de-la-reine': 'Clos de la Reine',
+};
+
 function readDisplayName(projectUpper, fallback) {
-  return process.env[`PROJECT_${projectUpper}_DISPLAY_NAME`] || fallback;
+  const value = process.env[`PROJECT_${projectUpper}_DISPLAY_NAME`];
+  // `??` indique typiquement un secret stocké avec un mauvais encodage
+  // (ex: "Domaine des R??ves Bleus" au lieu de "Rêves"). On retombe sur le fallback.
+  if (!value || value.includes('??')) return fallback;
+  return value;
 }
 
 const allowedProjects = ['laurence', 'enzo', 'clos-de-la-reine'];
 
 const fromDisplayNames = Object.fromEntries(
-  allowedProjects.map(p => [p, readDisplayName(p.toUpperCase().replace(/-/g, '_'), p)])
+  allowedProjects.map(p => [
+    p,
+    readDisplayName(p.toUpperCase().replace(/-/g, '_'), PROJECT_DEFAULT_DISPLAY_NAMES[p] || p),
+  ])
 );
 
 export const config = {
