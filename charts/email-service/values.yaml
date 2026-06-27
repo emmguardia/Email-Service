@@ -59,6 +59,7 @@ service:
       - clos-de-la-reine-dev
       - invoice-service
       - domaine-des-reves-bleus
+      - edusport-connect
     allowSmtpEgress: true
 
 redis:

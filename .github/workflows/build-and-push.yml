@@ -98,6 +98,8 @@ jobs:
           fi
           NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
           echo "$NEW_VERSION" > version.txt
+          # garder package.json aligné — c'est la version lue par l'app au runtime
+          sed -i "s/\"version\": \"[0-9]*\.[0-9]*\.[0-9]*\"/\"version\": \"${NEW_VERSION}\"/" package.json
           TAG="v${NEW_VERSION}"
           echo "IMAGE_TAG=$TAG" >> $GITHUB_ENV
           echo "tag=$TAG" >> $GITHUB_OUTPUT
@@ -173,7 +175,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add version.txt "$VALUES_PATH"
+          git add version.txt package.json "$VALUES_PATH"
 
           if git diff --staged --quiet; then
             echo "Helm values already up to date, skip commit"

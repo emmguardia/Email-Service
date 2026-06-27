@@ -123,6 +123,27 @@ spec:
               name: {{ .Values.service.secretName }}
               key: project-clos-de-la-reine-display-name
               optional: true
+        - name: PROJECT_EDUSPORT_CONNECT_GMAIL_APP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-edusport-connect-gmail-app-password
+        - name: PROJECT_EDUSPORT_CONNECT_GMAIL_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-edusport-connect-gmail-user
+        - name: PROJECT_EDUSPORT_CONNECT_FROM_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-edusport-connect-from-email
+        - name: PROJECT_EDUSPORT_CONNECT_DISPLAY_NAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-edusport-connect-display-name
+              optional: true
         resources:
           {{- toYaml .Values.service.resources | nindent 10 }}
         volumeMounts:
