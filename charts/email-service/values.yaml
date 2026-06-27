@@ -60,6 +60,7 @@ service:
       - invoice-service
       - domaine-des-reves-bleus
       - edusport-connect
+      - zenix
     allowSmtpEgress: true
 
 redis:
