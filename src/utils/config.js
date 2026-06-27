@@ -1,6 +1,18 @@
 import dotenv from 'dotenv';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
 dotenv.config();
+
+// Version applicative lue depuis package.json (source unique, bumpée par la CI).
+let appVersion = 'unknown';
+try {
+  const pkgPath = join(dirname(fileURLToPath(import.meta.url)), '../../package.json');
+  appVersion = JSON.parse(readFileSync(pkgPath, 'utf8')).version || 'unknown';
+} catch {
+  // lecture impossible (cas improbable) → on garde 'unknown'
+}
 
 const ENVIRONMENT = process.env.ENVIRONMENT || 'production';
 
@@ -14,6 +26,7 @@ const PROJECT_DEFAULT_DISPLAY_NAMES = {
   laurence: 'Domaine des Rêves Bleus',
   enzo: 'Enzo',
   'clos-de-la-reine': 'Clos de la Reine',
+  'edusport-connect': 'ÉduSport Connect',
 };
 
 function readDisplayName(projectUpper, fallback) {
@@ -24,7 +37,7 @@ function readDisplayName(projectUpper, fallback) {
   return value;
 }
 
-const allowedProjects = ['laurence', 'enzo', 'clos-de-la-reine'];
+const allowedProjects = ['laurence', 'enzo', 'clos-de-la-reine', 'edusport-connect'];
 
 const fromDisplayNames = Object.fromEntries(
   allowedProjects.map(p => [
@@ -36,6 +49,7 @@ const fromDisplayNames = Object.fromEntries(
 export const config = {
   port: parseInt(process.env.PORT || '8080', 10),
   environment: ENVIRONMENT,
+  version: appVersion,
   jwt: {
     privateKeyPath: process.env.JWT_PRIVATE_KEY_PATH || '/app/secrets/jwt_private_key.pem',
     publicKeyPath: process.env.JWT_PUBLIC_KEY_PATH || '/app/secrets/jwt_public_key.pem',
@@ -81,6 +95,7 @@ export const config = {
     laurence: ['forgot-password', 'order-confirmation', 'contact', 'contact-sent', 'new-order'],
     enzo: ['contact', 'admin-notification'],
     'clos-de-la-reine': ['contact', 'contact-sent', 'order-confirmation', 'new-order', 'order-validated', 'forgot-password', 'invoice'],
+    'edusport-connect': ['contact', 'admin-notification'],
   },
   templatesDir: process.env.TEMPLATES_DIR || '/app/templates',
 };

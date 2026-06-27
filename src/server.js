@@ -58,7 +58,7 @@ app.use('/api/v1', emailRouter);
 app.get('/', (req, res) => {
   res.json({
     service: 'email-service',
-    version: '1.0.0',
+    version: config.version,
     status: 'running',
   });
 });

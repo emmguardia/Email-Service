@@ -22,7 +22,7 @@ router.get('/', (req, res) => {
   res.json({
     status: 'healthy',
     service: 'email-service',
-    version: '1.0.0',
+    version: config.version,
   });
 });
 
