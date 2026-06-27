@@ -1,6 +1,6 @@
 {
   "name": "email-service",
-  "version": "1.0.0",
+  "version": "1.0.7",
   "description": "Microservice sécurisé pour l'envoi d'emails (Gmail SMTP, Handlebars, Redis-backed rate-limit)",
   "main": "src/server.js",
   "type": "module",
