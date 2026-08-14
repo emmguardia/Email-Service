@@ -1,20 +1,35 @@
 # Multi-stage build:
-#   - builder: full Debian + npm to install prod deps
+#   - builder: full Debian + pnpm to install prod deps
 #   - runtime: Chainguard distroless Node, rebuilt DAILY with latest CVE patches
 # Net result: scan Trivy clean, minimal attack surface, no npm/apt/shell.
+#
+# Le runtime n'a pas été touché : Chainguard distroless est déjà le socle le
+# plus dur possible ici (ni npm, ni apt, ni shell), et son tag `latest` est
+# volontaire — l'image est reconstruite quotidiennement avec les correctifs CVE.
+# L'épingler la figerait et supprimerait précisément ce bénéfice.
+#
+# Seul le builder change : npm -> pnpm et Node 20 -> 26.
 
 # ---- Builder ----
-FROM node:20-bookworm-slim AS builder
+FROM node:26-bookworm-slim AS builder
 
-ENV NPM_CONFIG_LOGLEVEL=error \
-    NPM_CONFIG_UPDATE_NOTIFIER=false
+ENV PNPM_HOME=/pnpm \
+    PATH=/pnpm:$PATH
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+# pnpm épinglé. Pas de corepack : il a été retiré du bundle Node à partir de
+# Node 25/26.
+RUN npm install -g pnpm@10.33.4 --no-audit --no-fund
 
-RUN npm ci --omit=dev --no-audit --no-fund && \
-    npm cache clean --force
+# .npmrc porte minimum-release-age=1440 et ignore-scripts=true : aucun script
+# post-install de dépendance ne s'exécute pendant le build de l'image. Aucune
+# dépendance de ce service n'étant native, rien n'a besoin d'être autorisé via
+# pnpm.onlyBuiltDependencies.
+COPY package.json pnpm-lock.yaml .npmrc ./
+
+RUN pnpm install --prod --frozen-lockfile && \
+    pnpm store prune 2>/dev/null || true
 
 # ---- Runtime ----
 # cgr.dev/chainguard/node:latest = distroless + rebuilds quotidiens.
