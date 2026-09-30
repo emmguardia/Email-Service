@@ -144,6 +144,30 @@ spec:
               name: {{ .Values.service.secretName }}
               key: project-edusport-connect-display-name
               optional: true
+        - name: PROJECT_GUARDIA_CRISE_GMAIL_APP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-guardia-crise-gmail-app-password
+              optional: true
+        - name: PROJECT_GUARDIA_CRISE_GMAIL_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-guardia-crise-gmail-user
+              optional: true
+        - name: PROJECT_GUARDIA_CRISE_FROM_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-guardia-crise-from-email
+              optional: true
+        - name: PROJECT_GUARDIA_CRISE_DISPLAY_NAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-guardia-crise-display-name
+              optional: true
         resources:
           {{- toYaml .Values.service.resources | nindent 10 }}
         volumeMounts:

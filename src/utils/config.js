@@ -27,6 +27,7 @@ const PROJECT_DEFAULT_DISPLAY_NAMES = {
   enzo: 'Enzo',
   'clos-de-la-reine': 'Clos de la Reine',
   'edusport-connect': 'ÉduSport Connect',
+  'guardia-crise': 'Crise Cyber · Guardia',
 };
 
 function readDisplayName(projectUpper, fallback) {
@@ -37,7 +38,7 @@ function readDisplayName(projectUpper, fallback) {
   return value;
 }
 
-const allowedProjects = ['laurence', 'enzo', 'clos-de-la-reine', 'edusport-connect'];
+const allowedProjects = ['laurence', 'enzo', 'clos-de-la-reine', 'edusport-connect', 'guardia-crise'];
 
 const fromDisplayNames = Object.fromEntries(
   allowedProjects.map(p => [
@@ -96,6 +97,7 @@ export const config = {
     enzo: ['contact', 'admin-notification'],
     'clos-de-la-reine': ['contact', 'contact-sent', 'order-confirmation', 'new-order', 'order-validated', 'forgot-password', 'invoice'],
     'edusport-connect': ['contact', 'admin-notification'],
+    'guardia-crise': ['verify-email', 'reset-password'],
   },
   templatesDir: process.env.TEMPLATES_DIR || '/app/templates',
 };
