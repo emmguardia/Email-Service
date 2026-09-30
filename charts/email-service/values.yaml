@@ -5,7 +5,7 @@ imagePullSecrets:
   - name: ghcr-secret
 
 service:
-  image: ghcr.io/emmguardia/email-service@sha256:124c724f282af532d1d732213083e8ff15d214d3b27c1399546b8c7d78654f43
+  image: ghcr.io/emmguardia/email-service@sha256:bdd5ac59d0611d23688937d8e17c9216a1ff14fd345a6d6888b9e4c6e98b00c5
   imagePullPolicy: IfNotPresent
   replicas: 2
   port: 8080
