@@ -36,6 +36,24 @@ export function getRedis() {
   return client;
 }
 
+/** Résout quand la connexion Redis est prête (rejette après timeoutMs). */
+export function redisReady(timeoutMs = 30000) {
+  const redis = getRedis();
+  if (redis.status === 'ready') return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      redis.off('ready', onReady);
+      reject(new Error('redis_not_ready'));
+    }, timeoutMs);
+    timer.unref();
+    function onReady() {
+      clearTimeout(timer);
+      resolve();
+    }
+    redis.once('ready', onReady);
+  });
+}
+
 export async function closeRedis() {
   if (!client) return;
   try {

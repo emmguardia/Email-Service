@@ -8,9 +8,43 @@ import { verifyJWTToken, verifyProjectAccess } from '../middleware/auth.js';
 import { emailService } from '../services/emailService.js';
 import { logger } from '../utils/logger.js';
 import { metrics } from './metrics.js';
-import { getRedis } from '../utils/redis.js';
+import { getRedis, redisReady } from '../utils/redis.js';
 
 const router = express.Router();
+
+// rate-limit-redis charge son script Lua dès l'initialisation, avant que Redis
+// soit connecté. Avec enableOfflineQueue: false, ce SCRIPT LOAD échouait, et la
+// lib ne le retente jamais (seule une erreur NOSCRIPT déclenche un rechargement) :
+// toutes les requêtes renvoyaient 500 jusqu'au redémarrage du pod.
+//  - SCRIPT LOAD : retenté jusqu'à ce que Redis réponde (ne rejette jamais) ;
+//  - autres commandes : échec immédiat si Redis n'est pas prêt ;
+//  - increment plafonné à 2 s (sinon il attendrait le chargement du script).
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const ipStore = new RedisStore({
+  sendCommand: async (...args) => {
+    const redis = getRedis();
+    if (String(args[0]).toUpperCase() === 'SCRIPT') {
+      for (let attempt = 1; ; attempt++) {
+        try {
+          await redisReady();
+          return await redis.call(...args);
+        } catch (err) {
+          logger.warn({ error: err.message, attempt }, 'rate_limit_script_load_retry');
+          await sleep(Math.min(attempt * 1000, 5000));
+        }
+      }
+    }
+    if (redis.status !== 'ready') throw new Error('redis_not_ready');
+    return redis.call(...args);
+  },
+  prefix: 'rl:ip:',
+});
+const rawIncrement = ipStore.increment.bind(ipStore);
+ipStore.increment = (key) =>
+  Promise.race([
+    rawIncrement(key),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('rate_limit_store_timeout')), 2000).unref()),
+  ]);
 
 const ipRateLimiter = rateLimit({
   windowMs: config.rateLimit.windowHours * 60 * 60 * 1000,
@@ -18,10 +52,10 @@ const ipRateLimiter = rateLimit({
   message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
-  store: new RedisStore({
-    sendCommand: (...args) => getRedis().call(...args),
-    prefix: 'rl:ip:',
-  }),
+  store: ipStore,
+  // Redis indisponible ou lent : on laisse passer (même politique open-fail que
+  // utils/rateLimiter.js) plutôt que de couper l'envoi d'emails.
+  passOnStoreError: true,
   handler: (req, res) => {
     metrics.rateLimitHits.inc({ scope: 'ip' });
     res.status(429).json({ error: 'Too many requests from this IP, please try again later.' });
