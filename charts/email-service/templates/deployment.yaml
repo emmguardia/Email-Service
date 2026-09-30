@@ -17,6 +17,10 @@ spec:
       app: email-service
   template:
     metadata:
+      annotations:
+        # Les secrets sont lus en variables d'environnement au démarrage :
+        # incrémenter cette valeur après un rescellement pour redémarrer les pods.
+        secrets-revision: "2"
       labels:
         app: email-service
     spec:
