@@ -63,6 +63,7 @@ service:
       - zenix
       - zenix-app
       - crise-cyber
+      - quisine
     allowSmtpEgress: true
 
 redis:
