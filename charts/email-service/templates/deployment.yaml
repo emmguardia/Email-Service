@@ -172,6 +172,30 @@ spec:
               name: {{ .Values.service.secretName }}
               key: project-guardia-crise-display-name
               optional: true
+        - name: PROJECT_CLUB_QUISINE_GMAIL_APP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-club-quisine-gmail-app-password
+              optional: true
+        - name: PROJECT_CLUB_QUISINE_GMAIL_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-club-quisine-gmail-user
+              optional: true
+        - name: PROJECT_CLUB_QUISINE_FROM_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-club-quisine-from-email
+              optional: true
+        - name: PROJECT_CLUB_QUISINE_DISPLAY_NAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-club-quisine-display-name
+              optional: true
         resources:
           {{- toYaml .Values.service.resources | nindent 10 }}
         volumeMounts:

@@ -1,0 +1,86 @@
+<!-- EMAIL_SUBJECT: Message bien reçu - Club Quisine -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message bien reçu - Club Quisine</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            line-height: 1.6;
+            color: #2D1F0E;
+            background-color: #FFFBF5;
+            padding: 20px 0;
+        }
+        .email-wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #F2EADF;
+        }
+        .header { background-color: #2D1F0E; padding: 28px 30px; }
+        .brand { font-family: Georgia, 'Playfair Display', serif; font-style: italic; font-size: 22px; color: #ffffff; }
+        .brand-accent { color: #FF8C42; }
+        .content { padding: 32px 30px; }
+        .greeting { font-size: 17px; font-weight: 700; color: #2D1F0E; margin-bottom: 16px; }
+        .text { font-size: 15px; color: #5C4025; margin-bottom: 16px; }
+        .recap {
+            background-color: #FFFBF5;
+            border-left: 4px solid #FF8C42;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 24px 0;
+            font-size: 14px;
+            color: #5C4025;
+        }
+        .recap strong { color: #2D1F0E; }
+        .footer {
+            background-color: #FFFBF5;
+            padding: 18px 30px;
+            text-align: center;
+            border-top: 1px solid #F2EADF;
+            font-size: 12px;
+            color: #9A7050;
+        }
+        .footer a { color: #E8651A; text-decoration: none; font-weight: 700; }
+        @media only screen and (max-width: 600px) {
+            .email-wrapper { margin: 0 10px; border-radius: 10px; }
+            .content { padding: 24px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="header">
+            <div class="brand">Club <span class="brand-accent">Quisine</span></div>
+        </div>
+
+        <div class="content">
+            <p class="greeting">Bonjour {{ to_name }},</p>
+
+            <p class="text">
+                Nous avons bien reçu votre message et nous vous répondrons dès que possible,
+                directement à cette adresse.
+            </p>
+
+            <div class="recap">
+                <strong>Sujet :</strong> {{ subject }}
+            </div>
+
+            <p class="text">
+                À bientôt,<br>
+                Le bureau du Club Quisine
+            </p>
+        </div>
+
+        <div class="footer">
+            Club Quisine, Guardia Cybersecurity School, 50 rue de Marseille, 69007 Lyon<br>
+            <a href="https://quisine.zenixweb.fr">quisine.zenixweb.fr</a>
+        </div>
+    </div>
+</body>
+</html>

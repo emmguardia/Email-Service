@@ -28,6 +28,7 @@ const PROJECT_DEFAULT_DISPLAY_NAMES = {
   'clos-de-la-reine': 'Clos de la Reine',
   'edusport-connect': 'ÉduSport Connect',
   'guardia-crise': 'Crise Cyber · Guardia',
+  'club-quisine': 'Club Quisine',
 };
 
 function readDisplayName(projectUpper, fallback) {
@@ -38,7 +39,7 @@ function readDisplayName(projectUpper, fallback) {
   return value;
 }
 
-const allowedProjects = ['laurence', 'enzo', 'clos-de-la-reine', 'edusport-connect', 'guardia-crise'];
+const allowedProjects = ['laurence', 'enzo', 'clos-de-la-reine', 'edusport-connect', 'guardia-crise', 'club-quisine'];
 
 const fromDisplayNames = Object.fromEntries(
   allowedProjects.map(p => [
@@ -98,6 +99,7 @@ export const config = {
     'clos-de-la-reine': ['contact', 'contact-sent', 'order-confirmation', 'new-order', 'order-validated', 'forgot-password', 'invoice'],
     'edusport-connect': ['contact', 'admin-notification'],
     'guardia-crise': ['verify-email', 'reset-password'],
+    'club-quisine': ['contact', 'contact-sent'],
   },
   templatesDir: process.env.TEMPLATES_DIR || '/app/templates',
 };
