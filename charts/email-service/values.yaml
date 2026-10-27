@@ -67,7 +67,7 @@ service:
     allowSmtpEgress: true
 
 redis:
-  image: redis:7.4.9-alpine
+  image: redis:7.4.12-alpine
   port: 6379
   resources:
     requests:
