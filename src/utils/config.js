@@ -95,7 +95,7 @@ export const config = {
   fromDisplayNames,
   allowedTemplates: {
     laurence: ['forgot-password', 'order-confirmation', 'contact', 'contact-sent', 'new-order'],
-    enzo: ['contact', 'admin-notification'],
+    enzo: ['contact', 'admin-notification', 'zenix-app-notification'],
     'clos-de-la-reine': ['contact', 'contact-sent', 'order-confirmation', 'new-order', 'order-validated', 'forgot-password', 'invoice'],
     'edusport-connect': ['contact', 'admin-notification'],
     'guardia-crise': ['verify-email', 'reset-password'],
