@@ -85,6 +85,22 @@ spec:
               name: {{ .Values.service.secretName }}
               key: project-laurence-display-name
               optional: true
+        # Valoria : même compte Gmail que le projet enzo (contact@), envoi sous l'alias valoria@zenixweb.fr
+        # (adresse ajoutée dans « Envoyer des e-mails en tant que » de ce compte Gmail)
+        - name: PROJECT_VALORIA_GMAIL_APP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-enzo-gmail-app-password
+        - name: PROJECT_VALORIA_GMAIL_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.service.secretName }}
+              key: project-enzo-gmail-user
+        - name: PROJECT_VALORIA_FROM_EMAIL
+          value: valoria@zenixweb.fr
+        - name: PROJECT_VALORIA_DISPLAY_NAME
+          value: Valoria
         - name: PROJECT_ENZO_GMAIL_APP_PASSWORD
           valueFrom:
             secretKeyRef:

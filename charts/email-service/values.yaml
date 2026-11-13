@@ -64,6 +64,7 @@ service:
       - zenix-app
       - crise-cyber
       - quisine
+      - valoria
     allowSmtpEgress: true
 
 redis:
